@@ -27,7 +27,7 @@ class Connection(object):
 		url = "https://%s.api.battle.net/%s/guild/%s/%s?fields=%s&locale=%s&apikey=%s" % (self.REGION, self.WOW, realm, name, fields, self.LOCALE, self.API_KEY)
 		return self.requestJson(url)
 
-
+	# c.getMemberProfile(name="Raksus", realm="C'thun", fields=["items"])
 	def getMemberProfile(self, name, realm, fields=None):
 		name = name.lower().replace (" ", "%2C")
 		realm = realm.lower().replace (" ", "%2C")
@@ -38,4 +38,4 @@ class Connection(object):
 		return self.requestJson(url)
 c = Connection()
 #c.getGuildProfile(name="Resort", realm="C'thun", fields=["members"])
-print c.getMemberProfile(name="Raksus", realm="C'thun", fields=["items"])
+#c.getMemberProfile(name="Raksus", realm="C'thun", fields=["items"])
