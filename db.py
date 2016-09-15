@@ -110,12 +110,7 @@ class DBConection(object):
 		del items["averageItemLevel"]
 		for item in items:
 			item = items[item]
-			print item
-			print item["id"]
-			print item["name"]
-			print item["itemLevel"]
 			cur = self.con.cursor()
-			print "Ha pasado"
 			sql = "INSERT INTO actualItems VALUES (DEFAULT, %s, %s, %s, %s) RETURNING id;"
 			cur.execute(sql, (
 				id,
@@ -134,7 +129,7 @@ class DBConection(object):
 				self.insertStats(armor, iid)
 
 	def insertStats(self, stat, id):
-		print "Insertando: " + stat + "de: " + id
+		print "Insertando: " + str(stat["stat"]) + "de: " + str(id)
 		sql = "INSERT INTO itemStats VALUES (DEFAULT, %s, %s, %s);"
 		cur.execute(sql, (
 			id,
