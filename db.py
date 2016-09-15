@@ -68,6 +68,7 @@ class DBConection(object):
 			cur.execute(sql)
 
 			self.con.commit
+		cur.close()
 
 	def connect(self):
 		try:
@@ -77,6 +78,10 @@ class DBConection(object):
 			return self.con
 		except:
 			print "Imposible conectar a la base de datos"
+
+
+	def disconnect(self):
+		con.close()
 
 	def insertPlayer(self, player):
 		print "Insertando: " + player["name"]
@@ -97,6 +102,7 @@ class DBConection(object):
 		self.insertItem(player["items"], pid)
 
 		self.con.commit()
+		cur.close()
 	
 	def insertItem(self, items, id):
 		print "Insertando: " + str(items["averageItemLevel"]) + " de: " + str(id)
@@ -112,7 +118,8 @@ class DBConection(object):
 				)
 				iid = cur.fetchone()[0]
 				self.con.commit()
-				
+				cur.close()
+
 				for stat in item["stats"]:
 					self.insertStats(stat, iid)
 				if item.has_key("armor"):
@@ -129,6 +136,7 @@ class DBConection(object):
 		)
 
 		self.con.commit()
+		cur.close()
 
 #db = DBConection()
 #db.connect()
