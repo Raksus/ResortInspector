@@ -1,5 +1,6 @@
 import configparser
 import psycopg2
+import json
 
 class DBConection(object):
 
@@ -12,8 +13,10 @@ class DBConection(object):
 		self.USER = config['DEFAULT']['user']
 		self.PASS = config['DEFAULT']['pass']
 
-	def configuredb(self, con):
-		cur = con.cursor()
+		self.con = None
+
+	def configuredb(self):
+		cur = self.con.cursor()
 
 		cur.execute("""SELECT table_name
 						FROM information_schema.tables
@@ -25,20 +28,58 @@ class DBConection(object):
 
 		if "players" not in tablas:
 			print "Creating players table"
-			cur.execute("CREATE TABLE players (id serial PRIMARY KEY, name varchar, lvl integer);")
-			con.commit()
+			sql = """CREATE TABLE players (
+							id serial PRIMARY KEY, 
+							name varchar, 
+							realm varchar,
+							class integer,
+							race integer,
+							gender integer,
+							lvl integer,
+							faction integer,
+							image varchar
+						);"""
+			cur.execute(sql)
+
+			self.con.commit()
+
+		if "actualItems" not in tablas:
+			print "Creating actualItems table"
+			sql = """CREATE TABLE actualItems (
+							id serial PRIMARY KEY,
+
+
+			);"""
+			cur.execute(sql)
+
+			self.con.commit()
 
 	def connect(self):
 		try:
-			con = psycopg2.connect("dbname='%s' user='%s' host='%s' password='%s'" % (self.DB_NAME, self.USER, self.DB_IP, self.PASS))
-			self.configuredb(con)
+			self.con = psycopg2.connect("dbname='%s' user='%s' host='%s' password='%s'" % (self.DB_NAME, self.USER, self.DB_IP, self.PASS))
+			self.configuredb()
 			print "Conexion establecida"	
-			return con
+			return self.con
 		except:
 			print "Imposible conectar a la base de datos"
 
-	def insertPlayer(player):
-		return None
+	def insertPlayer(self, player):
+		print "Insertando: " + player["name"]
+		cur = self.con.cursor()
+		sql = "INSERT INTO players VALUES (DEFAULT, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;"
+		cur.execute(sql, 
+			(player["name"], 
+			player["realm"], 
+			player["class"], 
+			player["race"], 
+			player["gender"], 
+			player["level"], 
+			player["faction"], 
+			player["thumbnail"]))
+		print cur.fetchone()[0]
+		
+		self.con.commit()
+		
 
-db = DBConection()
-db.connect()
+#db = DBConection()
+#db.connect()

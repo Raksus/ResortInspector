@@ -1,5 +1,6 @@
 import configparser
 import requests
+import db
 
 class Connection(object):
 
@@ -39,3 +40,12 @@ class Connection(object):
 c = Connection()
 #c.getGuildProfile(name="Resort", realm="C'thun", fields=["members"])
 #c.getMemberProfile(name="Raksus", realm="C'thun", fields=["items"])
+data = db.DBConection()
+data.connect()
+
+for player in c.getGuildProfile(name="Resort", realm="C'thun", fields=["members"])["members"]:
+	if player["character"]["level"] == 110 and player["rank"] not in (6, 7):
+		json = c.getMemberProfile(name=player["character"]["name"], realm="C'thun", fields=[""])
+		while not json.has_key("name"):
+			json = c.getMemberProfile(name=player["character"]["name"], realm="C'thun", fields=[""])
+		data.insertPlayer(json)
