@@ -44,7 +44,7 @@ class DBConection(object):
 
 			self.con.commit()
 
-		if "actualItems" not in tablas:
+		if "actualitems" not in tablas:
 			print "Creating actualItems table"
 			sql = """CREATE TABLE actualItems (
 							id serial PRIMARY KEY,
@@ -57,7 +57,7 @@ class DBConection(object):
 
 			self.con.commit()
 
-		if "itemStats" not in tablas:
+		if "itemstats" not in tablas:
 			print "Creating itemStats table"
 			sql = """CREATE TABLE itemStats (
 							id serial PRIMARY KEY,
@@ -106,27 +106,28 @@ class DBConection(object):
 	
 	def insertItem(self, items, id):
 		print "Insertando: " + str(items["averageItemLevel"]) + " de: " + str(id)
+		del items["averageItemLevelEquipped"]
+		del items["averageItemLevel"]
 		for item in items:
 			print item
-			if not isinstance(item, basestring):
-				cur = self.con.cursor()
-				print "Ha pasado"
-				sql = "INSERT INTO actualItems VALUES (DEFAULT, %s, %s, %s, %s, %s) RETURNING id;"
-				cur.execute(sql, (
-					id,
-					item["id"],
-					item["name"],
-					item["itemLevel"])
-				)
-				iid = cur.fetchone()[0]
-				self.con.commit()
-				cur.close()
+			cur = self.con.cursor()
+			print "Ha pasado"
+			sql = "INSERT INTO actualItems VALUES (DEFAULT, %s, %s, %s, %s, %s) RETURNING id;"
+			cur.execute(sql, (
+				id,
+				item["id"],
+				item["name"],
+				item["itemLevel"])
+			)
+			iid = cur.fetchone()[0]
+			self.con.commit()
+			cur.close()
 
-				for stat in item["stats"]:
-					self.insertStats(stat, iid)
-				if item.has_key("armor"):
-					armor = json.dumps({"stat": -1, "amount": item["armor"]})
-					self.insertStats(armor, iid)
+			for stat in item["stats"]:
+				self.insertStats(stat, iid)
+			if item.has_key("armor"):
+				armor = json.dumps({"stat": -1, "amount": item["armor"]})
+				self.insertStats(armor, iid)
 
 	def insertStats(self, stat, id):
 		print "Insertando: " + stat + "de: " + id
