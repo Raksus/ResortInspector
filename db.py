@@ -107,8 +107,10 @@ class DBConection(object):
 	def insertItem(self, items, id):
 		print "Insertando: " + str(items["averageItemLevel"]) + " de: " + str(id)
 		for item in items:
+			print item
 			if not isinstance(item, basestring):
 				cur = self.con.cursor()
+				print "Ha pasado"
 				sql = "INSERT INTO actualItems VALUES (DEFAULT, %s, %s, %s, %s, %s) RETURNING id;"
 				cur.execute(sql, (
 					id,
