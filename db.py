@@ -123,13 +123,19 @@ class DBConection(object):
 			cur.close()
 
 			for stat in item["stats"]:
+				print stat
 				self.insertStats(stat, iid)
 			if item.has_key("armor"):
-				armor = json.dumps({"stat": -1, "amount": item["armor"]})
+				data = {}
+				data["stat"] = -1
+				data["amount"] = item["armor"]
+				armor = json.dumps(data)
+				print armor
 				self.insertStats(armor, iid)
 
 	def insertStats(self, stat, id):
 		print "Insertando: " + str(stat["stat"]) + "de: " + str(id)
+		cur = self.con.cursor()
 		sql = "INSERT INTO itemStats VALUES (DEFAULT, %s, %s, %s);"
 		cur.execute(sql, (
 			id,
