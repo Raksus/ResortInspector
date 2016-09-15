@@ -71,13 +71,13 @@ class DBConection(object):
 		cur.close()
 
 	def connect(self):
-		try:
-			self.con = psycopg2.connect("dbname='%s' user='%s' host='%s' password='%s'" % (self.DB_NAME, self.USER, self.DB_IP, self.PASS))
-			self.configuredb()
-			print "Conexion establecida"	
-			return self.con
-		except:
-			print "Imposible conectar a la base de datos"
+		#try:
+		self.con = psycopg2.connect("dbname='%s' user='%s' host='%s' password='%s'" % (self.DB_NAME, self.USER, self.DB_IP, self.PASS))
+		self.configuredb()
+		print "Conexion establecida"	
+		return self.con
+		#except:
+		#	print "Imposible conectar a la base de datos"
 
 
 	def disconnect(self):
