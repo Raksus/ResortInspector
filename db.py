@@ -126,12 +126,7 @@ class DBConection(object):
 				print stat
 				self.insertStats(stat, iid)
 			if item.has_key("armor"):
-				data = {}
-				data["stat"] = -1
-				data["amount"] = item["armor"]
-				armor = json.dumps(data)
-				print armor
-				self.insertStats(armor, iid)
+				self.insertArmor(item["armor"], iid)
 
 	def insertStats(self, stat, id):
 		print "Insertando: " + str(stat["stat"]) + "de: " + str(id)
@@ -141,6 +136,18 @@ class DBConection(object):
 			id,
 			stat["stat"],
 			stat["amount"])
+		)
+
+		self.con.commit()
+		cur.close()
+
+	def insertArmor(self, stat, id):
+		cur = self.con.cursor()
+		sql = "INSERT INTO itemStats VALUES (DEFAULT, %s, %s, %s);"
+		cur.execute(sql, (
+			id,
+			-1,
+			stat)
 		)
 
 		self.con.commit()
