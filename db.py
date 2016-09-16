@@ -103,7 +103,7 @@ class DBConection(object):
 		for item in items:
 			key = item
 			item = items[key]
-			bonus = ",".join(str(item["bonusLists"]))
+			bonus = ",".join(str(b) for b in item["bonusLists"])
 			cur = self.con.cursor()
 			sql = "INSERT INTO itemsEquiped VALUES (DEFAULT, %s, %s, %s, %s, %s, %s, %s) RETURNING id;"
 			cur.execute(sql, (
