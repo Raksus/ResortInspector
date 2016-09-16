@@ -22,9 +22,8 @@ class DBConection(object):
 						FROM information_schema.tables
 						WHERE table_schema='public'
 						AND table_type='BASE TABLE';""")
-		tablas = ""
-		for x in cur.fetchall():
-			tablas += "".join(x)
+		tablas = "".join(cur.fetchall())
+		print tablas
 
 		if "players" not in tablas:
 			print "Creating players table"
@@ -56,6 +55,39 @@ class DBConection(object):
 							part varchar,
 							ilvl integer
 			);"""
+			cur.execute(sql)
+
+			self.con.commit()
+
+		if "itemshistoric" not in tablas:
+			print "Creating itemsHistoric table"
+			sql = """CREATE TABLE itemsHistoric (
+							id serial PRIMARY KEY,
+							idPlayer integer,
+							idItem integer,
+							context varchar,
+							bonusList varchar,
+							name varchar,
+							part varchar,
+							ilvl integer,
+							date timestamp
+			);"""
+			cur.execute(sql)
+
+			self.con.commit()
+
+		if "itemstemporal" not in tablas:
+			print "Creating itemsTemporal table"
+			sql = """CREATE TEMPORARY TABLE itemsTemporal (
+							id serial PRIMARY KEY,
+							idPlayer integer,
+							idItem integer,
+							context varchar,
+							bonusList varchar,
+							name varchar,
+							part varchar,
+							ilvl integer
+			) ON COMMIT DELETE ROWS;"""
 			cur.execute(sql)
 
 			self.con.commit()
@@ -115,9 +147,11 @@ class DBConection(object):
 				key,
 				item["itemLevel"])
 			)
-			iid = cur.fetchone()[0]
 			self.con.commit()
 			cur.close()
+
+	def updateItem(self, items, id):
+		print "Update items"
 
 	def insertStats(self, stat, id):
 		print "Insertando: " + str(stat["stat"]) + "de: " + str(id)
@@ -149,6 +183,13 @@ class DBConection(object):
 		sql = "SELECT name FROM players"
 		cur.execute(sql)
 		return cur.fetchall()
+
+	def backup(self):
+		cur = self.con.cursor()
+		copy = "INSERT INTO itemshistoric SELECT * FROM itemsequiped, now();"
+		cur.execute(copy)
+		truncate = "TRUNCATE TABLE itemsequiped;"
+		cur.execute(truncate)
 
 #db = DBConection()
 #db.connect()
