@@ -1,8 +1,8 @@
 import connection
 import db
 
-c = connection.Conection()
-data = dbDBConection()
+c = connection.Connection()
+data = db.DBConection()
 data.connect()
 
 for player in c.getGuildProfile(name="Resort", realm="C'thun", fields=["members"])["members"]:

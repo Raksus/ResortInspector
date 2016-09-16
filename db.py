@@ -46,7 +46,7 @@ class DBConection(object):
 
 		if "itemsequiped" not in tablas:
 			print "Creating itemsEquiped table"
-			sql = """CREATE TABLE actualItems (
+			sql = """CREATE TABLE itemsEquiped (
 							id serial PRIMARY KEY,
 							idPlayer integer,
 							idItem integer,
@@ -103,9 +103,9 @@ class DBConection(object):
 		for item in items:
 			key = item
 			item = items[key]
-			bonus = ",".join(item["bonusLists"])
+			bonus = ",".join(str(item["bonusLists"]))
 			cur = self.con.cursor()
-			sql = "INSERT INTO actualItems VALUES (DEFAULT, %s, %s, %s, %s, %s, %s) RETURNING id;"
+			sql = "INSERT INTO itemsEquiped VALUES (DEFAULT, %s, %s, %s, %s, %s, %s, %s) RETURNING id;"
 			cur.execute(sql, (
 				id,
 				item["id"],
