@@ -1,0 +1,7 @@
+{% if players %}
+    <ul>
+    {% for p in players %}
+        <li><a href="/inspector/{{p.id}}/">{{p.name}}</a></li>
+    {% endfor %}
+    </ul>
+{% endif %}
