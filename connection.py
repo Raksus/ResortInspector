@@ -39,15 +39,3 @@ class Connection(object):
 
 		url = "https://%s.api.battle.net/%s/character/%s/%s?fields=%s&locale=%s&apikey=%s" % (self.REGION, self.WOW, realm, name, fields, self.LOCALE, self.API_KEY)
 		return self.requestJson(url)
-c = Connection()
-#c.getGuildProfile(name="Resort", realm="C'thun", fields=["members"])
-#c.getMemberProfile(name="Raksus", realm="C'thun", fields=["items"])
-data = db.DBConection()
-data.connect()
-
-for player in c.getGuildProfile(name="Resort", realm="C'thun", fields=["members"])["members"]:
-	if player["character"]["level"] == 110 and player["rank"] not in (6, 7):
-		json = c.getMemberProfile(name=player["character"]["name"], realm="C'thun", fields=["items"])
-		data.insertPlayer(json)
-
-data.disconnect()

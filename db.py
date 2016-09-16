@@ -44,30 +44,22 @@ class DBConection(object):
 
 			self.con.commit()
 
-		if "actualitems" not in tablas:
-			print "Creating actualItems table"
+		if "itemsequiped" not in tablas:
+			print "Creating itemsEquiped table"
 			sql = """CREATE TABLE actualItems (
 							id serial PRIMARY KEY,
 							idPlayer integer,
 							idItem integer,
+							context varchar,
+							bonusList varchar,
 							name varchar,
+							part varchar,
 							ilvl integer
 			);"""
 			cur.execute(sql)
 
 			self.con.commit()
 
-		if "itemstats" not in tablas:
-			print "Creating itemStats table"
-			sql = """CREATE TABLE itemStats (
-							id serial PRIMARY KEY,
-							idItem integer,
-							stat integer,
-							amount integer
-			);"""
-			cur.execute(sql)
-
-			self.con.commit
 		cur.close()
 
 	def connect(self):
@@ -81,7 +73,7 @@ class DBConection(object):
 
 
 	def disconnect(self):
-		con.close()
+		self.con.close()
 
 	def insertPlayer(self, player):
 		print "Insertando: " + player["name"]
@@ -109,24 +101,23 @@ class DBConection(object):
 		del items["averageItemLevelEquipped"]
 		del items["averageItemLevel"]
 		for item in items:
-			item = items[item]
+			key = item
+			item = items[key]
+			bonus = ",".join(item["bonusLists"])
 			cur = self.con.cursor()
-			sql = "INSERT INTO actualItems VALUES (DEFAULT, %s, %s, %s, %s) RETURNING id;"
+			sql = "INSERT INTO actualItems VALUES (DEFAULT, %s, %s, %s, %s, %s, %s) RETURNING id;"
 			cur.execute(sql, (
 				id,
 				item["id"],
+				item["context"],
+				bonus,
 				item["name"],
+				key,
 				item["itemLevel"])
 			)
 			iid = cur.fetchone()[0]
 			self.con.commit()
 			cur.close()
-
-			for stat in item["stats"]:
-				print stat
-				self.insertStats(stat, iid)
-			if item.has_key("armor"):
-				self.insertArmor(item["armor"], iid)
 
 	def insertStats(self, stat, id):
 		print "Insertando: " + str(stat["stat"]) + "de: " + str(id)
@@ -152,6 +143,12 @@ class DBConection(object):
 
 		self.con.commit()
 		cur.close()
+
+	def getPlayers(self):
+		cur = self.con.cursor()
+		sql = "SELECT name FROM players"
+		cur.execute(sql)
+		return cur.fetchall()
 
 #db = DBConection()
 #db.connect()
