@@ -1,7 +1,18 @@
 {% if players %}
     <ul>
     {% for p in players %}
-        <li><a href="/inspector/{{p.id}}/">{{p.name}}</a></li>
+        <li><a href="{% url 'inspector:detail' p.id %}">{{p.name}}</a> ilvl: {{p.ilvl}}</li>
     {% endfor %}
     </ul>
 {% endif %}
+
+<form action="{% url 'inspector:ausencias' %}" method="post">
+{% csrf_token %}
+<input type="text" name="player">
+<br />
+<input type="date" name="fecha" required="required">
+<br />
+<input type="text" name="comentario">
+<br />
+<input type="submit" value="Vote" />
+</form>

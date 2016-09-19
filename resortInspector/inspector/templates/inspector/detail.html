@@ -1,1 +1,15 @@
-{{player}}
+<h1>{{player}}</h1>
+<ul>
+    <li>Ilvl: {{player.ilvl}}</li>
+    <li>Clase: {{player.class}}</li>
+    <li>Raza: {{player.race}}</li>
+    <li>Genero: {{player.gender}}</li>
+    <li>Lvl: {{player.lvl}}</li>
+    <li>Faccion: {{player.faction}}</li>
+</ul>
+
+<ul>
+{% for item in items %}
+   <li>Pieza: {{item.part}}, nombre: {{item.name}}, ilvl:{{item.ilvl}}</li>
+{% endfor %}
+<ul>
