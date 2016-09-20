@@ -1,4 +1,8 @@
-from __future__ import unicode_literals
+# encoding=utf8
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
@@ -30,6 +34,7 @@ class Item(models.Model):
         (17, 'shirt'),
     )
     itemSocket = models.IntegerField(choices=ITEM_SOCKET)
+    ilvl = models.IntegerField()
 
     def __str__(self):
         return str(self.idItem) +", " + str(self.name)
@@ -66,47 +71,47 @@ class Player(models.Model):
     realm = models.CharField(max_length=20)
     ilvl = models.IntegerField()
     CLASE = (
-        ('1', 'Guerrero'),
-        ('2', 'Paladin'),
-        ('3', 'Cazador'),
-        ('4', 'Picaro'),
-        ('5', 'Sacerdote'),
-        ('6', 'Caballero de la Muerte'),
-        ('7', 'Chaman'),
-        ('8', 'Mago'),
-        ('9', 'Brujo'),
-        ('10', 'Monje'),
-        ('11', 'Druida'),
-        ('12', 'Cazador de demonios'),
+        (1, 'Guerrero'),
+        (2, 'Paladin'),
+        (3, 'Cazador'),
+        (4, 'Picaro'),
+        (5, 'Sacerdote'),
+        (6, 'Caballero de la Muerte'),
+        (7, 'Chaman'),
+        (8, 'Mago'),
+        (9, 'Brujo'),
+        (10, 'Monje'),
+        (11, 'Druida'),
+        (12, 'Cazador de demonios'),
     )
     clase = models.IntegerField(choices=CLASE)
     RACE = (
-        ('1', 'Humano'),
-        ('2', 'Orco'),
-        ('3', 'Enano'),
-        ('4', 'Elfo de la Noche'),
-        ('5', 'NoMuerto'),
-        ('6', 'Tauren'),
-        ('7', 'Gnomo'),
-        ('8', 'Troll'),
-        ('9', 'Goblin'),
-        ('10', 'Elfo de Sangre'),
-        ('11', 'Draenei'),
-        ('22', 'Worgen'),
-        ('24', 'Pandaren'),
-        ('25', 'Pandaren'),
-        ('26', 'Pandaren'),
+        (1, 'Humano'),
+        (2, 'Orco'),
+        (3, 'Enano'),
+        (4, 'Elfo de la Noche'),
+        (5, 'NoMuerto'),
+        (6, 'Tauren'),
+        (7, 'Gnomo'),
+        (8, 'Troll'),
+        (9, 'Goblin'),
+        (10, 'Elfo de Sangre'),
+        (11, 'Draenei'),
+        (22, 'Worgen'),
+        (24, 'Pandaren'),
+        (25, 'Pandaren'),
+        (26, 'Pandaren'),
     )
     race = models.IntegerField(choices=RACE)
     GENDER = (
-        ('0', 'M'),
-        ('1', 'F'),
+        (0, 'M'),
+        (1, 'F'),
     )
     gender = models.IntegerField(choices=GENDER)
     lvl = models.IntegerField()
     FACTION = (
-        ('0', 'Alianza'),
-        ('1', 'Horda'),
+        (0, 'Alianza'),
+        (1, 'Horda'),
     )
     faction = models.IntegerField(choices=FACTION)
     image = models.CharField(max_length=50, blank=True, null=True)

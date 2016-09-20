@@ -1,15 +1,73 @@
-<h1>{{player}}</h1>
-<ul>
-    <li>Ilvl: {{player.ilvl}}</li>
-    <li>Clase: {{player.class}}</li>
-    <li>Raza: {{player.race}}</li>
-    <li>Genero: {{player.gender}}</li>
-    <li>Lvl: {{player.lvl}}</li>
-    <li>Faccion: {{player.faction}}</li>
-</ul>
+{% extends 'inspector/base.html' %}
 
-<ul>
-{% for item in items %}
-   <li>Pieza: {{item.part}}, nombre: {{item.name}}, ilvl:{{item.ilvl}}</li>
-{% endfor %}
-<ul>
+{% load static %}
+
+{% block content %}
+<div class="col-sm-3 col-md-2 sidebar">
+    <ul class="nav nav-sidebar">
+        <li class="active">
+            <a href="#">Principal<span class="sr-only">(current)</span>
+        </li>
+    </ul>
+    <ul class="nav nav-sidebar">
+        <li>
+            <a href="">Secundario</a>
+        </li>
+    </ul>
+</div>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <h1 class="page-header">{{player.name}}</h1>
+    <h2 class="sub-header">{{player.ilvl}}</h2>
+    <div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>ItemId</th>
+            <th>Nombre</th>
+            <th>Ilvl</th>
+            <th>Hueco</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if items %}
+        {% for i in items %}
+
+            <tr>
+                <td>{{i.idItem}}</td>
+                <td>{{i.name}}</td>
+                <td>{{i.ilvl}}</td>
+                <td>{{i.get_itemSocket_display}}</td>
+            </tr>
+        {% endfor %}
+        {% endif %}
+        </tbody>
+    </table>
+</div>
+<h2 class="sub-header">Detalles</h2>
+<div class="row placeholder">
+<div class="panel panel-default">
+  <div class="panel-heading">Clase</div>
+  <div class="panel-body">
+    {{player.get_clase_display}}
+  </div>
+</div>
+<div class="panel panel-default">
+  <div class="panel-heading">Genero</div>
+  <div class="panel-body">
+    {{player.get_gender_display}}
+  </div>
+</div>
+<div class="panel panel-default">
+  <div class="panel-heading">Raza</div>
+  <div class="panel-body">
+    {{player.get_race_display}}
+  </div>
+</div>
+<div class="panel panel-default">
+  <div class="panel-heading">Nivel</div>
+  <div class="panel-body">
+    {{player.lvl}}
+  </div>
+</div>
+</div>
+{% endblock content %}
