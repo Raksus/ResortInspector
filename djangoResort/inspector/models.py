@@ -27,6 +27,7 @@ class Item(models.Model):
         (14, 'Trinket2'),
         (15, 'MainHand'),
         (16, 'OffHand'),
+        (17, 'shirt'),
     )
     itemSocket = models.IntegerField(choices=ITEM_SOCKET)
 
