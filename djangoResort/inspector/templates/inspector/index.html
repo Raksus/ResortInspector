@@ -31,8 +31,8 @@
             </tr>
             </thead>
             <tbody>
-            {% if players %}
-            {% for p in players %}
+            {% if player %}
+            {% for p in player %}
                 <a href="{% url 'inspector:detail' p.id %}">
                 <tr>
                     <td>{{p.name}}</td>
