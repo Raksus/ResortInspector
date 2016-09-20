@@ -97,7 +97,7 @@ class DBConection(object):
 	def connect(self):
 		#try:
 		self.con = psycopg2.connect("dbname='%s' user='%s' host='%s' password='%s'" % (self.DB_NAME, self.USER, self.DB_IP, self.PASS))
-		self.configuredb()
+		#self.configuredb()
 		print "Conexion establecida"	
 		return self.con
 		#except:
