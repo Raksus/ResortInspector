@@ -11,6 +11,6 @@ for player in c.getGuildProfile(name="Resort", realm="C'thun", fields=["members"
 		playerId = data.insertPlayer(json)
 		items = data.insertItem(json["items"])
 		for item in items:
-			insertPlayerItem(playerId, item)
+			data.insertPlayerItem(playerId, item)
 
 data.disconnect()

@@ -137,8 +137,7 @@ class DBConection(object):
 
 	def insertPlayerItem(self, playerId, itemId):
 		cur = self.con.cursor()
-		sql = """INSERT INTO inspector_playeritem VALUES (DEFAULT, %s, %s
-		"""
+		sql = """INSERT INTO inspector_playeritem VALUES (DEFAULT, %s, %s)"""
 		cur.execute(sql, (
 			itemId,
 			playerId)
