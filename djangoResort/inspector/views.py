@@ -4,6 +4,7 @@ from .models import Player, Item
 
 def index(request):
 	players = Player.objects.all()
+	print players
 	context = {
 		'players': players,
 	}
