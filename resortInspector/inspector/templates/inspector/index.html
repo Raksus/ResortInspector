@@ -1,18 +1,52 @@
-{% if players %}
-    <ul>
-    {% for p in players %}
-        <li><a href="{% url 'inspector:detail' p.id %}">{{p.name}}</a> ilvl: {{p.ilvl}}</li>
-    {% endfor %}
-    </ul>
-{% endif %}
+{% extends 'inspector/base.html' %}
 
-<form action="{% url 'inspector:ausencias' %}" method="post">
-{% csrf_token %}
-<input type="text" name="player">
-<br />
-<input type="date" name="fecha" required="required">
-<br />
-<input type="text" name="comentario">
-<br />
-<input type="submit" value="Vote" />
-</form>
+{% load static %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'inspector/css/dashboard.css' %}" />
+{% endblock css %}
+
+{% block content %}
+<div class="col-sm-3 col-md-2 sidebar">
+    <ul class="nav nav-sidebar">
+        <li class="active">
+            <a href="#">Principal<span class="sr-only">(current)</span>
+        </li>
+    </ul>
+    <ul class="nav nav-sidebar">
+        <li>
+            <a href="">Secundario</a>
+        </li>
+    </ul>
+</div>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <h1 class="page-header">Principal</h1>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>ILvl</th>
+                <th>Detalles</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if players %}
+            {% for p in players %}
+                <a href="{% url 'inspector:detail' p.id %}">
+                <tr>
+                    <td>{{p.name}}</td>
+                    <td {% if p.ilvl < 840 %} class="alert alert-danger" {% endif %}>{{p.ilvl}}</td>
+                    <td><a href="{% url 'inspector:detail' p.id %}" class="label label-info"><span class="glyphicon glyphicon-list" aria-hidden="true"/></a></td>
+                </tr>
+                </a>
+            {% endfor %}
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row placeholder">
+    </div>
+</div>
+{% endblock content %}
