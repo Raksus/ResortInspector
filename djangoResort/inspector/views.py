@@ -12,7 +12,7 @@ def index(request):
 def detail(request, player_id):
 	player = get_object_or_404(Player, pk=player_id)
 	itemsId = PlayerItem.objects.filter(idPlayer=player_id).values_list('idItem', flat=True)
-        items = Item.objects.filter(pk__in=itemsId)
+        items = Item.objects.filter(pk__in=itemsId).order_by('itemSocket')
 	return render(request, 'inspector/detail.html', {'player': player, 'items': items})
 
 def ausencias(request):

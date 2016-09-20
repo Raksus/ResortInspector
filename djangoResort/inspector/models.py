@@ -3,7 +3,6 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -118,3 +117,35 @@ class Player(models.Model):
 
     def __str__(self):
         return self.name
+
+@python_2_unicode_compatible
+class Artifact(models.Model):
+    idArtifact = models.IntegerField()
+    idPlayer = models.ForeignKey('Player', on_delete=models.CASCADE) 
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+@python_2_unicode_compatible
+class Relic(models.Model):
+    idRelic = models.IntegerField()
+    context = models.IntegerField()
+    bonusList = models.CharField(max_length=50, blank=True)
+
+    def __str__(self):
+        return str(idRelic)
+
+class ArtifactRelic(models.Model):
+    idPlayer = models.ForeignKey('Player', on_delete=models.CASCADE)
+    idArtifact = models.ForeignKey('Artifact', on_delete=models.CASCADE)
+
+@python_2_unicode_compatible
+class Trait(models.Model):
+    idTrait = models.IntegerField()
+    idPlayer = models.ForeignKey('Player', on_delete=models.CASCADE) 
+    idArtifact = models.ForeignKey('Artifact', on_delete=models.CASCADE) 
+    rank = models.IntegerField()
+
+    def __str__(self):
+        return str(idTrait)

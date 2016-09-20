@@ -82,8 +82,8 @@ class DBConection(object):
 			item = items[key]
 			bonus = ",".join(str(b) for b in item["bonusLists"])
 			cur = self.con.cursor()
-			sql = """INSERT INTO inspector_item("idItem", name, context, "bonusList", "itemSocket") 
-				SELECT %s, %s, %s, %s, %s
+			sql = """INSERT INTO inspector_item("idItem", name, context, "bonusList", "itemSocket", ilvl) 
+				SELECT %s, %s, %s, %s, %s, %s
 				WHERE NOT EXISTS 
 					(SELECT "idItem", context, "bonusList", "itemSocket"
 					FROM inspector_item
@@ -95,6 +95,7 @@ class DBConection(object):
 				item["context"],
 				bonus,
 				part[key],
+				item["itemLevel"],
 				item["id"],
 				item["context"],
 				bonus,
