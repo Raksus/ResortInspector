@@ -6,7 +6,7 @@ from django.utils.encoding import python_2_unicode_compatible
 @python_2_unicode_compatible
 class Item(models.Model):
     idItem = models.IntegerField()
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=100)
     context = models.CharField(max_length=20)
     bonusList = models.CharField(max_length=50, blank=True)
     ITEM_SOCKET = (
@@ -62,7 +62,7 @@ class PlayerItemHistoric(models.Model):
 
 @python_2_unicode_compatible
 class Player(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=50)
     realm = models.CharField(max_length=20)
     ilvl = models.IntegerField()
     CLASE = (
