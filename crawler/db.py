@@ -15,102 +15,26 @@ class DBConection(object):
 
 		self.con = None
 
-	def configuredb(self):
-		cur = self.con.cursor()
-
-		cur.execute("""SELECT table_name
-						FROM information_schema.tables
-						WHERE table_schema='public'
-						AND table_type='BASE TABLE';""")
-		tablas = "".join(cur.fetchall())
-		print tablas
-
-		if "players" not in tablas:
-			print "Creating players table"
-			sql = """CREATE TABLE players (
-							id serial PRIMARY KEY, 
-							name varchar, 
-							realm varchar,
-							ilvl integer,
-							class integer,
-							race integer,
-							gender integer,
-							lvl integer,
-							faction integer,
-							image varchar
-						);"""
-			cur.execute(sql)
-
-			self.con.commit()
-
-		if "itemsequiped" not in tablas:
-			print "Creating itemsEquiped table"
-			sql = """CREATE TABLE itemsEquiped (
-							id serial PRIMARY KEY,
-							idPlayer integer,
-							idItem integer,
-							context varchar,
-							bonusList varchar,
-							name varchar,
-							part varchar,
-							ilvl integer
-			);"""
-			cur.execute(sql)
-
-			self.con.commit()
-
-		if "itemshistoric" not in tablas:
-			print "Creating itemsHistoric table"
-			sql = """CREATE TABLE itemsHistoric (
-							id serial PRIMARY KEY,
-							idPlayer integer,
-							idItem integer,
-							context varchar,
-							bonusList varchar,
-							name varchar,
-							part varchar,
-							ilvl integer,
-							date timestamp
-			);"""
-			cur.execute(sql)
-
-			self.con.commit()
-
-		if "itemstemporal" not in tablas:
-			print "Creating itemsTemporal table"
-			sql = """CREATE TEMPORARY TABLE itemsTemporal (
-							id serial PRIMARY KEY,
-							idPlayer integer,
-							idItem integer,
-							context varchar,
-							bonusList varchar,
-							name varchar,
-							part varchar,
-							ilvl integer
-			) ON COMMIT DELETE ROWS;"""
-			cur.execute(sql)
-
-			self.con.commit()
-
-		cur.close()
-
 	def connect(self):
-		#try:
-		self.con = psycopg2.connect("dbname='%s' user='%s' host='%s' password='%s'" % (self.DB_NAME, self.USER, self.DB_IP, self.PASS))
-		#self.configuredb()
-		print "Conexion establecida"	
-		return self.con
-		#except:
-		#	print "Imposible conectar a la base de datos"
+		try:
+			self.con = psycopg2.connect("dbname='%s' user='%s' host='%s' password='%s'" % (self.DB_NAME, self.USER, self.DB_IP, self.PASS))
+			print "Conexion establecida"	
+			return self.con
+		except:
+			print "Imposible conectar a la base de datos"
 
 
 	def disconnect(self):
-		self.con.close()
+		try:
+			self.con.close()
+			print "Desconexion realizada"
+		except:
+			print "Error al desconectar"
 
 	def insertPlayer(self, player):
 		print "Insertando: " + player["name"]
 		cur = self.con.cursor()
-		sql = "INSERT INTO players VALUES (DEFAULT, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;"
+		sql = "INSERT INTO inspector_player VALUES (DEFAULT, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;"
 		cur.execute(sql, (
 			player["name"], 
 			player["realm"], 
@@ -122,61 +46,103 @@ class DBConection(object):
 			player["faction"], 
 			player["thumbnail"])
 		)
-		pid = cur.fetchone()[0]
-		self.insertItem(player["items"], pid)
 
+		playerId = cur.fetchone()[0]
 		self.con.commit()
 		cur.close()
+		return playerId
 	
-	def insertItem(self, items, id):
+	def insertItem(self, items):
 		print "Insertando: " + str(items["averageItemLevel"]) + " de: " + str(id)
 		del items["averageItemLevelEquipped"]
 		del items["averageItemLevel"]
+		part = {}
+		part["head"] = 0
+		part["neck"] = 1
+		part["shoulder"] = 2
+		part["back"] = 3
+		part["chest"] = 4
+		part["tabard"] = 5
+		part["wrist"] = 6
+		part["hands"] = 7
+		part["waist"] = 8
+		part["legs"] = 9
+		part["feet"] = 10
+		part["finger1"] = 11
+		part["finger2"] = 12
+		part["trinket1"] = 13
+		part["trinket2"] = 14
+		part["mainHand"] = 15
+		part["offHand"] = 16
+		part["shirt"] = 17
+
+		itemArray = []
 		for item in items:
 			key = item
 			item = items[key]
 			bonus = ",".join(str(b) for b in item["bonusLists"])
 			cur = self.con.cursor()
-			sql = "INSERT INTO itemsEquiped VALUES (DEFAULT, %s, %s, %s, %s, %s, %s, %s) RETURNING id;"
+			sql = """INSERT INTO inspector_item("idItem", name, context, "bonusList", "itemSocket") 
+				SELECT %s, %s, %s, %s, %s
+				WHERE NOT EXISTS 
+					(SELECT "idItem", context, "bonusList", "itemSocket"
+					FROM inspector_item
+					WHERE "idItem" = %s AND context = %s AND "bonusList" = %s AND "itemSocket" = %s) 
+				RETURNING id;"""
 			cur.execute(sql, (
-				id,
+				item["id"],
+				item["name"],
+				item["context"],
+				bonus,
+				part[key],
 				item["id"],
 				item["context"],
 				bonus,
-				item["name"],
-				key,
-				item["itemLevel"])
+				part[key])
 			)
-			self.con.commit()
+			itemId = None
+			try:
+				itemId = cur.fetchone()[0]
+				itemArray.append(itemId)
+			except:
+				print "Ya estaba"
 			cur.close()
+			self.con.commit()
 
-	def updateItem(self, items, id):
-		print "Update items"
+			if itemId != None:
+				self.insertStats(item, itemId)
 
-	def insertStats(self, stat, id):
-		print "Insertando: " + str(stat["stat"]) + "de: " + str(id)
+		return itemArray
+
+	def insertStats(self, item, id):
+		print "Insertando: " + "cosas " + "de: " + str(id)
 		cur = self.con.cursor()
-		sql = "INSERT INTO itemStats VALUES (DEFAULT, %s, %s, %s);"
-		cur.execute(sql, (
-			id,
-			stat["stat"],
-			stat["amount"])
-		)
-
-		self.con.commit()
-		cur.close()
-
-	def insertArmor(self, stat, id):
-		cur = self.con.cursor()
-		sql = "INSERT INTO itemStats VALUES (DEFAULT, %s, %s, %s);"
-		cur.execute(sql, (
-			id,
+		for stat in item["stats"]:
+			sql = "INSERT INTO inspector_itemstats VALUES (DEFAULT, %s, %s, %s);"
+			cur.execute(sql, (
+				stat["stat"],
+				stat["amount"],
+				id)
+			)
+		
+		armor = "INSERT INTO inspector_itemstats VALUES (DEFAULT, %s, %s, %s);"
+		cur.execute(armor, (
 			-1,
-			stat)
+			item["armor"],
+			id)
 		)
 
 		self.con.commit()
 		cur.close()
+
+	def insertPlayerItem(self, playerId, itemId):
+		cur = self.con.cursor()
+		sql = """INSERT INTO inspector_playeritem VALUES (DEFAULT, %s, %s
+		"""
+		cur.execute(sql, (
+			itemId,
+			playerId)
+		)
 
 	def getPlayers(self):
 		cur = self.con.cursor()
