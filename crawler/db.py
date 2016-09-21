@@ -102,6 +102,7 @@ class DBConection(object):
 				bonus,
 				part[key])
 			)
+
 			itemId = None
 			try:
 				itemId = cur.fetchone()[0]
@@ -142,55 +143,188 @@ class DBConection(object):
 
 	def insertPlayerItem(self, playerId, itemId):
 		cur = self.con.cursor()
-		sql = """INSERT INTO inspector_playeritem VALUES (DEFAULT, %s, %s);"""
+		sql = """SELECT idItem_id, id FROM inspector_playeritem WHERE "idPlayer_id" = %s;"""
 		cur.execute(sql, (
-			itemId,
+			trait["id"],
+			idArtifact,
 			playerId)
 		)
 
-		self.con.commit()
+		try:
+			update = cur.fetchone()
+			if update[0] != itemId:
+				updatesql = """UPDATE inspector_playeritem SET "idItem_id" = %s WHERE id = %s;"""
+				cur.execute(updatesql, (
+					itemId,
+					update[1]))
+				self.insertPlayerItemHistoric(playerId, update[0])
+
+		except:
+			insertsql = """INSERT INTO inspector_playeritem VALUES (DEFAULT, %s, %s);"""
+			cur.execute(insertsql, (
+				itemId,
+				playerId)
+			)
+		finally:
+			self.con.commit()
+
 		cur.close()
+
+	def insertPlayerItemHistoric(seld, playerdId, itemId):
+		cur = self.con.cursor()
+		sql = """INSERT INTO inspector_playeritemhistoric("idItem_id", "idPlayer_id") VALUES (%s, %s)"""
+		cur.execute(sql, (
+			itemId,
+			playerId)
+	)
 
 	def insertArtifact(self, artifact, playerId):
 		cur = self.con.cursor()
-		sql = """INSERT INTO inspector_artifact("idArtifact", name, "idPlayer_id") VALUES (%s, %s, %s);"""
+		sql = """INSERT INTO inspector_artifact("idArtifact", name, "idPlayer_id") 
+					SELECT %s, %s, %s
+					WHERE NOT EXISTS
+						(SELECT "idArtifact", name, "idPlayer_id"
+						FROM inspector_artifact
+						WHERE "idArtifact" = %s AND name = %s AND "idPlayer_id" = %s);"""
 		cur.execute(sql, (
+			artifact["artifactId"],
+			artifact["name"],
+			playerId,
 			artifact["artifactId"],
 			artifact["name"],
 			playerId)
 		)
 		
 		self.con.commit()
-		cur.close()
+
+		sql = """SELECT id FROM inspector_artifact WHERE "idArtifact" = %s;"""
+		cur.execute(sql, artifact["artifactId"])
+
+		self.con.commit()
+		idArtifact = cur.fetchone()[0]
 
 		for relic in artifact["relics"]:
-			self.insertRelic(relic)
+			idRelic, socket = self.insertRelic(relic)
+			self.insertArtifactRelic(idRelic, socket, playerId, idArtifact)
+
+		for trait in artifact["artifactTraits"]:
+		self.insertTrait(self, trait, idArtifact, playerId)
+
+		cur.close()
 
 	def insertRelic(self, relic):
 		cur = self.con.cursor()
 		bonus = ",".join(str(b) for b in relic["bonusLists"])
-		sql = """INSERT INTO inspector_relic("idRelic", context, "bonusList") VALUES (%s, %s, %s) RETURNING id;"""
+		sql = """INSERT INTO inspector_relic("idRelic", context, "bonusList")
+					SELECT %s, %s, %s
+					WHERE NOT EXISTS
+						(SELECT"idRelic", context, "bonusList"
+						FROM inspector_relic
+						WHERE "idRelic" = %s AND context = %s AND "bonusList" = %s);"""
 		cur.execute(sql, (
+			relic["itemId"],
+			relic["context"],
+			bonus,
 			relic["itemId"],
 			relic["context"],
 			bonus)
 		)
+		self.con.commit()
 
+		cur.execute("""SELECT id FROM inspector_relic WHERE "idRelic" = %s;""", relic["itemId"])
+		id = cur.fetchone()[0]
+		
+		self.con.commit()
+		cur.close()
 
-	def insertTraits(self, )
+		return id, relic["socket"]
+
+	def insertArtifactRelic(self, idRelic, socket, playerId, idArtifact):
+		cur = self.con.cursor()
+		sql = """SELECT idRelic_id, id FROM inspector_artifactrelic WHERE "idPlayer_id" = %s AND "socket" = %s AND "idArtifact_id" = %s;"""
+		cur.execute(sql, (
+			playerId,
+			socket,
+			idArtifact)
+		)
+
+		try:
+			update = cur.fetchone()
+			if update[0] != idRelic:
+				updatesql = """UPDATE inspector_artifactrelic SET "idRelic_id" = %s WHERE id = %s;"""
+				cur.execute(updatesql, (
+					idRelic,
+					update[1]))
+				self.insertPlayerItemHistoric(playerId, update[0])
+
+		except:
+			insertsql = """INSERT INTO inspector_artifactrelic("idPlayer", "idArtifact", "idRelic", socket) VALUES (%s, %s, %s, %s);"""
+			cur.execute(insertsql, (
+				playerId,
+				idArtifact,
+				idRelic,
+				socket)
+			)
+		finally:
+			self.con.commit()
+
+		cur.close()
+
+	def insertArtifactRelicHistoric(self, idRelic, socket, playerId, idArtifact):
+		cur = self.con.cursor()
+		sql = """INSERT INTO inspector_artifactrelichistoric("idPlayer", "idArtifact", "idRelic", socket) VALUES (%s, %s, %s, %s);"""
+		cur.execute(sql, (
+			playerId,
+			idArtifact,
+			idRelic,
+			socket)
+		)
+
+	def insertArtifactRelic(self, idRelic, socket, playerId, idArtifact):
+		cur = self.con.cursor()
+		sql = """INSERT INTO inspector_artifactrelic("idPlayer", "idArtifact", "idRelic", socket) VALUES (%s, %s, %s, %s);"""
+		cur.execute(sql, (
+			playerId,
+			idArtifact,
+			idRelic,
+			socket))
+
+		self.con.commit()
+		cur.close()
+
+	def insertTrait(self, trait, idArtifact, playerId):
+		cur = self.con.cursor()
+		sql = """SELECT id FROM inspector_trait WHERE "idTrait" = %s AND "idArtifact_id" = %s AND "idPlayer_id" = %s;"""
+		cur.execute(sql, (
+			trait["id"],
+			idArtifact,
+			playerId)
+		)
+
+		try:
+			update = cur.fetchone()[0]
+			updatesql = """UPDATE inspector_trait SET rank = %s WHERE id = %s;"""
+			cur.execute(updatesql, (
+				trait["rank"],
+				update))
+		except:
+			insertsql = """INSERT INTO inspector_trait("idTrait", rank, "idArtifact_id", "idPlayer_id") VALUES (%s, %s, %s, %s);"""
+			cur.execute(insertsql, (
+				trait["id"],
+				trait["rank"],
+				idArtifact,
+				playerId)
+			)
+		finally:
+			self.con.commit()
+
+		cur.close()
 
 	def getPlayers(self):
 		cur = self.con.cursor()
-		sql = "SELECT name FROM players"
+		sql = "SELECT name FROM players;"
 		cur.execute(sql)
 		return cur.fetchall()
-
-	def backup(self):
-		cur = self.con.cursor()
-		copy = "INSERT INTO itemshistoric SELECT * FROM itemsequiped, now();"
-		cur.execute(copy)
-		truncate = "TRUNCATE TABLE itemsequiped;"
-		cur.execute(truncate)
 
 #db = DBConection()
 #db.connect()

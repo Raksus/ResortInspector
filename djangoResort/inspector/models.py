@@ -139,7 +139,15 @@ class Relic(models.Model):
 class ArtifactRelic(models.Model):
     idPlayer = models.ForeignKey('Player', on_delete=models.CASCADE)
     idArtifact = models.ForeignKey('Artifact', on_delete=models.CASCADE)
+    idRelic = models.ForeignKey('Relic', on_delete=models.CASCADE)
     socket = models.IntegerField()
+
+class ArtifactRelicHistoric(models.Model):
+    idPlayer = models.ForeignKey('Player', on_delete=models.CASCADE)
+    idArtifact = models.ForeignKey('Artifact', on_delete=models.CASCADE)
+    idRelic = models.ForeignKey('Relic', on_delete=models.CASCADE)
+    socket = models.IntegerField()
+    fecha = models.DateTimeField(auto_now_add=True)
 
 @python_2_unicode_compatible
 class Trait(models.Model):
