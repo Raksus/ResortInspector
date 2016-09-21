@@ -77,6 +77,7 @@ class DBConection(object):
 		part["shirt"] = 17
 
 		itemArray = []
+		artifact = None
 		for item in items:
 			key = item
 			item = items[key]
@@ -110,10 +111,13 @@ class DBConection(object):
 			cur.close()
 			self.con.commit()
 
+			if item["artifactId"] != 0:
+				artifact = item
+
 			if itemId != None:
 				self.insertStats(item, itemId)
 
-		return itemArray
+		return itemArray, artifact
 
 	def insertStats(self, item, id):
 		print "Insertando: " + "cosas " + "de: " + str(id)
@@ -138,11 +142,42 @@ class DBConection(object):
 
 	def insertPlayerItem(self, playerId, itemId):
 		cur = self.con.cursor()
-		sql = """INSERT INTO inspector_playeritem VALUES (DEFAULT, %s, %s)"""
+		sql = """INSERT INTO inspector_playeritem VALUES (DEFAULT, %s, %s);"""
 		cur.execute(sql, (
 			itemId,
 			playerId)
 		)
+
+		self.con.commit()
+		cur.close()
+
+	def insertArtifact(self, artifact, playerId):
+		cur = self.con.cursor()
+		sql = """INSERT INTO inspector_artifact("idArtifact", name, "idPlayer_id") VALUES (%s, %s, %s);"""
+		cur.execute(sql, (
+			artifact["artifactId"],
+			artifact["name"],
+			playerId)
+		)
+		
+		self.con.commit()
+		cur.close()
+
+		for relic in artifact["relics"]:
+			self.insertRelic(relic)
+
+	def insertRelic(self, relic):
+		cur = self.con.cursor()
+		bonus = ",".join(str(b) for b in relic["bonusLists"])
+		sql = """INSERT INTO inspector_relic("idRelic", context, "bonusList") VALUES (%s, %s, %s) RETURNING id;"""
+		cur.execute(sql, (
+			relic["itemId"],
+			relic["context"],
+			bonus)
+		)
+
+
+	def insertTraits(self, )
 
 	def getPlayers(self):
 		cur = self.con.cursor()
