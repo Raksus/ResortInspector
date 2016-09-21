@@ -143,12 +143,8 @@ class DBConection(object):
 
 	def insertPlayerItem(self, playerId, itemId):
 		cur = self.con.cursor()
-		sql = """SELECT idItem_id, id FROM inspector_playeritem WHERE "idPlayer_id" = %s;"""
-		cur.execute(sql, (
-			trait["id"],
-			idArtifact,
-			playerId)
-		)
+		sql = """SELECT "idItem_id", id FROM inspector_playeritem WHERE "idPlayer_id" = %s;"""
+		cur.execute(sql, [playerId])
 
 		try:
 			update = cur.fetchone()
@@ -180,6 +176,7 @@ class DBConection(object):
 
 	def insertArtifact(self, artifact, playerId):
 		cur = self.con.cursor()
+		idArtifact = artifact["artifactId"]
 		sql = """INSERT INTO inspector_artifact("idArtifact", name, "idPlayer_id") 
 					SELECT %s, %s, %s
 					WHERE NOT EXISTS
@@ -187,10 +184,10 @@ class DBConection(object):
 						FROM inspector_artifact
 						WHERE "idArtifact" = %s AND name = %s AND "idPlayer_id" = %s);"""
 		cur.execute(sql, (
-			artifact["artifactId"],
+			idArtifact,
 			artifact["name"],
 			playerId,
-			artifact["artifactId"],
+			idArtifact,
 			artifact["name"],
 			playerId)
 		)
@@ -198,7 +195,7 @@ class DBConection(object):
 		self.con.commit()
 
 		sql = """SELECT id FROM inspector_artifact WHERE "idArtifact" = %s;"""
-		cur.execute(sql, artifact["artifactId"])
+		cur.execute(sql, [idArtifact])
 
 		self.con.commit()
 		idArtifact = cur.fetchone()[0]
@@ -208,7 +205,7 @@ class DBConection(object):
 			self.insertArtifactRelic(idRelic, socket, playerId, idArtifact)
 
 		for trait in artifact["artifactTraits"]:
-		self.insertTrait(self, trait, idArtifact, playerId)
+			self.insertTrait(trait, idArtifact, playerId)
 
 		cur.close()
 
@@ -231,7 +228,8 @@ class DBConection(object):
 		)
 		self.con.commit()
 
-		cur.execute("""SELECT id FROM inspector_relic WHERE "idRelic" = %s;""", relic["itemId"])
+		cur.execute("""SELECT id FROM inspector_relic 
+				WHERE "idRelic" = %s;""", [relic["itemId"]])
 		id = cur.fetchone()[0]
 		
 		self.con.commit()
@@ -241,7 +239,7 @@ class DBConection(object):
 
 	def insertArtifactRelic(self, idRelic, socket, playerId, idArtifact):
 		cur = self.con.cursor()
-		sql = """SELECT idRelic_id, id FROM inspector_artifactrelic WHERE "idPlayer_id" = %s AND "socket" = %s AND "idArtifact_id" = %s;"""
+		sql = """SELECT "idRelic_id", id FROM inspector_artifactrelic WHERE "idPlayer_id" = %s AND "socket" = %s AND "idArtifact_id" = %s;"""
 		cur.execute(sql, (
 			playerId,
 			socket,
@@ -255,10 +253,10 @@ class DBConection(object):
 				cur.execute(updatesql, (
 					idRelic,
 					update[1]))
-				self.insertPlayerItemHistoric(playerId, update[0])
+				self.insertArtifactRelicHistoric(update[0], socket, playerId, idArtifact)
 
 		except:
-			insertsql = """INSERT INTO inspector_artifactrelic("idPlayer", "idArtifact", "idRelic", socket) VALUES (%s, %s, %s, %s);"""
+			insertsql = """INSERT INTO inspector_artifactrelic("idPlayer_id", "idArtifact_id", "idRelic_id", socket) VALUES (%s, %s, %s, %s);"""
 			cur.execute(insertsql, (
 				playerId,
 				idArtifact,
@@ -272,25 +270,13 @@ class DBConection(object):
 
 	def insertArtifactRelicHistoric(self, idRelic, socket, playerId, idArtifact):
 		cur = self.con.cursor()
-		sql = """INSERT INTO inspector_artifactrelichistoric("idPlayer", "idArtifact", "idRelic", socket) VALUES (%s, %s, %s, %s);"""
+		sql = """INSERT INTO inspector_artifactrelichistoric("idPlayer_id", "idArtifact_id", "idRelic_id", socket) VALUES (%s, %s, %s, %s);"""
 		cur.execute(sql, (
 			playerId,
 			idArtifact,
 			idRelic,
 			socket)
 		)
-
-	def insertArtifactRelic(self, idRelic, socket, playerId, idArtifact):
-		cur = self.con.cursor()
-		sql = """INSERT INTO inspector_artifactrelic("idPlayer", "idArtifact", "idRelic", socket) VALUES (%s, %s, %s, %s);"""
-		cur.execute(sql, (
-			playerId,
-			idArtifact,
-			idRelic,
-			socket))
-
-		self.con.commit()
-		cur.close()
 
 	def insertTrait(self, trait, idArtifact, playerId):
 		cur = self.con.cursor()
