@@ -30,7 +30,7 @@ class Item(models.Model):
         (14, 'Trinket2'),
         (15, 'MainHand'),
         (16, 'OffHand'),
-        (17, 'shirt'),
+        (17, 'Shirt'),
     )
     itemSocket = models.IntegerField(choices=ITEM_SOCKET)
     ilvl = models.IntegerField()
@@ -139,6 +139,7 @@ class Relic(models.Model):
 class ArtifactRelic(models.Model):
     idPlayer = models.ForeignKey('Player', on_delete=models.CASCADE)
     idArtifact = models.ForeignKey('Artifact', on_delete=models.CASCADE)
+    socket = models.IntegerField()
 
 @python_2_unicode_compatible
 class Trait(models.Model):
