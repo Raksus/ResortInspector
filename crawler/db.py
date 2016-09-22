@@ -32,7 +32,7 @@ class DBConection(object):
 			print "Error al desconectar"
 
 	def insertPlayer(self, player):
-		print "Insertando: " + player["name"]
+		print "Insertando: " + str(player["id"])
 		cur = self.con.cursor()
 		sql = "INSERT INTO inspector_player VALUES (DEFAULT, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;"
 		cur.execute(sql, (
@@ -53,7 +53,6 @@ class DBConection(object):
 		return playerId
 	
 	def insertItem(self, items):
-		print "Insertando: " + str(items["averageItemLevel"]) + " de: " + str(id)
 		del items["averageItemLevelEquipped"]
 		del items["averageItemLevel"]
 		part = {}
@@ -103,25 +102,42 @@ class DBConection(object):
 				part[key])
 			)
 
-			itemId = None
+			self.con.commit()
+
+			nuevo = False
 			try:
-				itemId = cur.fetchone()[0]
-				itemArray.append(itemId)
+				print cur.fetchone()[0]
+				if cur.fetchone() != None:
+					nuevo = True
 			except:
-				print "Ya estaba"
+				nuevo = False
+
+			itemId = None
+			sql = """SELECT id FROM inspector_item WHERE "idItem" = %s AND context = %s AND "bonusList" = %s AND "itemSocket" = %s """
+			cur.execute(sql, (
+				item["id"],
+				item["context"],
+				bonus,
+				part[key])
+			)			
+			itemId = cur.fetchone()[0]
+			itemArray.append(itemId)
+
 			cur.close()
 			self.con.commit()
 
 			if item["artifactId"] != 0:
 				artifact = item
 
-			if itemId != None:
+			if nuevo:
 				self.insertStats(item, itemId)
+			else:
+				print "Ya estaba"
 
+		print itemArray
 		return itemArray, artifact
 
 	def insertStats(self, item, id):
-		print "Insertando: " + "cosas " + "de: " + str(id)
 		cur = self.con.cursor()
 		for stat in item["stats"]:
 			sql = "INSERT INTO inspector_itemstats VALUES (DEFAULT, %s, %s, %s);"
@@ -142,12 +158,14 @@ class DBConection(object):
 		cur.close()
 
 	def insertPlayerItem(self, playerId, itemId):
+		print "Item: " + str(itemId) + ", de jugador: " + str(playerId)
 		cur = self.con.cursor()
 		sql = """SELECT "idItem_id", id FROM inspector_playeritem WHERE "idPlayer_id" = %s;"""
 		cur.execute(sql, [playerId])
 
 		try:
 			update = cur.fetchone()
+			print update
 			if update[0] != itemId:
 				updatesql = """UPDATE inspector_playeritem SET "idItem_id" = %s WHERE id = %s;"""
 				cur.execute(updatesql, (

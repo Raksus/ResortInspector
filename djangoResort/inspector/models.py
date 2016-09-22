@@ -24,13 +24,11 @@ class Item(models.Model):
         (8, 'Waist'),
         (9, 'Legs'),
         (10, 'Feet'),
-        (11, 'Finger1'),
-        (12, 'Finger2'),
-        (13, 'Trinket1'),
-        (14, 'Trinket2'),
-        (15, 'MainHand'),
-        (16, 'OffHand'),
-        (17, 'Shirt'),
+        (11, 'Finger'),
+        (12, 'Trinket'),
+        (13, 'MainHand'),
+        (14, 'OffHand'),
+        (15, 'Shirt'),
     )
     itemSocket = models.IntegerField(choices=ITEM_SOCKET)
     ilvl = models.IntegerField()
@@ -51,7 +49,27 @@ class ItemStats(models.Model):
 class PlayerItem(models.Model):
     idPlayer = models.ForeignKey('Player', on_delete=models.CASCADE)
     idItem = models.ForeignKey('Item', on_delete=models.CASCADE)
-
+    ITEM_SOCKET = (
+        (0, 'Head'),
+        (1, 'Neck'),
+        (2, 'Shoulder'),
+        (3, 'Back'),
+        (4, 'Chest'),
+        (5, 'Tabard'),
+        (6, 'Wrist'),
+        (7, 'Hands'),
+        (8, 'Waist'),
+        (9, 'Legs'),
+        (10, 'Feet'),
+        (11, 'Finger1'),
+        (12, 'Finger2'),
+        (13, 'Trinket1'),
+        (14, 'Trinket2'),
+        (15, 'MainHand'),
+        (16, 'OffHand'),
+        (17, 'Shirt'),
+    )
+    itemSocket = models.IntegerField(choices=ITEM_SOCKET)
     def __str__(self):
         return str(self.idPlayer) + ", " + str(self.idItem)
 
