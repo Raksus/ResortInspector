@@ -68,12 +68,12 @@ class DBConection(object):
 		part["legs"] = 9
 		part["feet"] = 10
 		part["finger1"] = 11
-		part["finger2"] = 12
-		part["trinket1"] = 13
-		part["trinket2"] = 14
-		part["mainHand"] = 15
-		part["offHand"] = 16
-		part["shirt"] = 17
+		part["finger2"] = 11
+		part["trinket1"] = 12
+		part["trinket2"] = 12
+		part["mainHand"] = 13
+		part["offHand"] = 14
+		part["shirt"] = 15
 
 		itemArray = []
 		artifact = None
@@ -121,7 +121,7 @@ class DBConection(object):
 				part[key])
 			)			
 			itemId = cur.fetchone()[0]
-			itemArray.append(itemId)
+			itemArray.append([itemId, key])
 
 			cur.close()
 			self.con.commit()
@@ -158,38 +158,65 @@ class DBConection(object):
 		cur.close()
 
 	def insertPlayerItem(self, playerId, itemId):
-		print "Item: " + str(itemId) + ", de jugador: " + str(playerId)
+		print "Item: " + str(itemId[0]) + ", de jugador: " + str(playerId)
+		part = {}
+		part["head"] = 0
+		part["neck"] = 1
+		part["shoulder"] = 2
+		part["back"] = 3
+		part["chest"] = 4
+		part["tabard"] = 5
+		part["wrist"] = 6
+		part["hands"] = 7
+		part["waist"] = 8
+		part["legs"] = 9
+		part["feet"] = 10
+		part["finger1"] = 11
+		part["finger2"] = 12
+		part["trinket1"] = 13
+		part["trinket2"] = 14
+		part["mainHand"] = 15
+		part["offHand"] = 16
+		part["shirt"] = 17
+
 		cur = self.con.cursor()
-		sql = """SELECT "idItem_id", id FROM inspector_playeritem WHERE "idPlayer_id" = %s;"""
-		cur.execute(sql, [playerId])
+		sql = """SELECT "idItem_id", id FROM inspector_playeritem WHERE "idPlayer_id" = %s AND "itemSocket" = %s;"""
+		cur.execute(sql, (
+			playerId,
+			part[itemId[1]])
+		)
 
 		try:
 			update = cur.fetchone()
 			print update
-			if update[0] != itemId:
-				updatesql = """UPDATE inspector_playeritem SET "idItem_id" = %s WHERE id = %s;"""
+			if update[0] != itemId[0]:
+				updatesql = """UPDATE inspector_playeritem SET "idItem_id" = %s WHERE id = %s AND "itemSocket" = %s;"""
 				cur.execute(updatesql, (
-					itemId,
-					update[1]))
-				self.insertPlayerItemHistoric(playerId, update[0])
+					itemId[0],
+					update[1],
+					part[itemId[1]])
+				)
+				self.insertPlayerItemHistoric(playerId, update[0], part[itemId[1]])
 
 		except:
-			insertsql = """INSERT INTO inspector_playeritem VALUES (DEFAULT, %s, %s);"""
+			insertsql = """INSERT INTO inspector_playeritem VALUES (DEFAULT, %s, %s, %s);"""
 			cur.execute(insertsql, (
-				itemId,
-				playerId)
+				itemId[0],
+				playerId,
+				part[itemId[1]])
 			)
 		finally:
 			self.con.commit()
 
 		cur.close()
 
-	def insertPlayerItemHistoric(seld, playerdId, itemId):
+	def insertPlayerItemHistoric(seld, player Id, itemId, socket):
 		cur = self.con.cursor()
-		sql = """INSERT INTO inspector_playeritemhistoric("idItem_id", "idPlayer_id") VALUES (%s, %s)"""
+		sql = """INSERT INTO inspector_playeritemhistoric("idItem_id", "idPlayer_id", "itemSocket") VALUES (%s, %s, %s)"""
 		cur.execute(sql, (
 			itemId,
-			playerId)
+			playerId,
+			socket)
 	)
 
 	def insertArtifact(self, artifact, playerId):
