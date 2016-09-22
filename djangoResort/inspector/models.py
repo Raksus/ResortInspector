@@ -37,7 +37,7 @@ class Item(models.Model):
         return str(self.idItem) +", " + str(self.name)
 
 @python_2_unicode_compatible
-class ItemStats(models.Model):
+class ItemStat(models.Model):
     idItem = models.ForeignKey('Item', on_delete=models.CASCADE)
     stat = models.IntegerField()
     amount = models.IntegerField()
